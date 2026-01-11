@@ -35,12 +35,26 @@ class ProductDetailsScreen extends StatelessWidget {
                 height: screenHeight * 0.45,
                 width: double.infinity,
                 child: product.image != null && product.image!.isNotEmpty
+                    // ? Image.network(
+                    //     product.image!,
+                    //     fit: BoxFit.cover,
+                    //     errorBuilder: (_, __, ___) =>
+                    //         const Icon(Icons.broken_image, size: 80),
+                    //   )
                     ? Image.network(
-                        product.image!,
+                        product.image,
+                        width: double.infinity,
+                        height: 140,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const Icon(Icons.broken_image, size: 80),
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 140,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image),
+                          );
+                        },
                       )
+
                     : Image.asset(
                         'assets/images/placeholder.png',
                         fit: BoxFit.cover,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/data/models/product.dart';
+import 'package:mobile/presentation/providers/admin_order_provider.dart';
 import 'package:mobile/presentation/providers/product_provider.dart';
 import 'package:mobile/presentation/screens/main_screen.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()..fetchProducts()),
+        ChangeNotifierProvider(create: (_) => AdminOrderProvider()),
+
       ],
       child: const MaterialAppWithTheme(),
     );

@@ -109,21 +109,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // /// IMAGE
-                          // ClipRRect(
-                          //   borderRadius: BorderRadius.circular(8),
-                          //   child: Image.network(
-                          //     item.image ?? '',
-                          //     width: 70,
-                          //     height: 70,
-                          //     fit: BoxFit.cover,
-                          //     errorBuilder: (_, __, ___) =>
-                          //         const Icon(Icons.image, size: 60),
-                          //   ),
-                          // ),
-
-                          // const SizedBox(width: 12),
-
                           /// DETAILS
                           Expanded(
                             child: Column(

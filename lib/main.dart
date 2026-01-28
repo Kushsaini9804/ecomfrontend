@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/admin/admin_dashboard.dart';
 import 'package:mobile/data/models/product.dart';
 import 'package:mobile/presentation/providers/admin_order_provider.dart';
 import 'package:mobile/presentation/providers/product_provider.dart';
@@ -63,6 +64,8 @@ class MaterialAppWithTheme extends StatelessWidget {
           final auth = context.read<AuthProvider>();
           return const MainScreen();
         },
+        '/admin': (_) => const AdminDashboard(),
+
 
         '/cart': (_) {
           final auth = context.read<AuthProvider>();

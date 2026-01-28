@@ -31,22 +31,43 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) {
-      _shakeController.forward().then((_) => _shakeController.reset());
-      return;
+      Future<void> _login() async {
+      if (!_formKey.currentState!.validate()) {
+        _shakeController.forward().then((_) => _shakeController.reset());
+        return;
+      }
+
+      setState(() => _isLoading = true);
+
+      try {
+        final auth = context.read<AuthProvider>();
+
+        await auth.login(_email.text.trim(), _password.text.trim());
+
+        if (!mounted) return;
+
+        // 🔥 ROLE BASED REDIRECT
+        if (auth.isAdmin) {
+          Navigator.pushReplacementNamed(context, '/admin');
+        } else {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } catch (e) {
+        _shakeController.forward().then((_) => _shakeController.reset());
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().replaceAll('Exception:', '').trim(),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
-    setState(() => _isLoading = true);
-    try {
-      await context.read<AuthProvider>().login(_email.text, _password.text);
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
-    } catch (e) {
-      _shakeController.forward().then((_) => _shakeController.reset());
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {

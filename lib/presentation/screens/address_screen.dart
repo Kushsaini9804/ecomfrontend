@@ -79,50 +79,6 @@ class _AddressScreenState extends State<AddressScreen> {
     );
   }
 
-
-//   Future<void> _saveAddressAndPlaceOrder() async {
-//   if (!_formKey.currentState!.validate()) return;
-
-//   if (widget.product == null) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text("Product missing")),
-//     );
-//     return;
-//   }
-
-//   setState(() => _loading = true);
-
-//   final address = {
-//     'fullName': _fullName.text,
-//     'phone': _phone.text,
-//     'pincode': _pincode.text,
-//     'city': _city.text,
-//     'state': _state.text,
-//     'addressLine': _addressLine.text,
-//     'landmark': _landmark.text,
-//   };
-
-//   try {
-//     // 1️⃣ Save address
-//     await ApiService.post('/address', address);
-
-//     // 2️⃣ BUY NOW (🔥 SINGLE PRODUCT)
-//     await context.read<CartProvider>().buyNow(
-//           widget.product!,
-//           address,
-//           _paymentMethod,
-//         );
-
-//     if (!mounted) return;
-//     Navigator.pushReplacementNamed(context, '/order-success');
-//   } catch (e) {
-//     ScaffoldMessenger.of(context)
-//         .showSnackBar(SnackBar(content: Text(e.toString())));
-//   } finally {
-//     if (mounted) setState(() => _loading = false);
-//   }
-// }
-
   Future<void> _saveAddressAndPlaceOrder() async {
   if (!_formKey.currentState!.validate()) return;
 

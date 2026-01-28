@@ -35,12 +35,6 @@ class ProductDetailsScreen extends StatelessWidget {
                 height: screenHeight * 0.45,
                 width: double.infinity,
                 child: product.image != null && product.image!.isNotEmpty
-                    // ? Image.network(
-                    //     product.image!,
-                    //     fit: BoxFit.cover,
-                    //     errorBuilder: (_, __, ___) =>
-                    //         const Icon(Icons.broken_image, size: 80),
-                    //   )
                     ? Image.network(
                         product.image,
                         width: double.infinity,

@@ -1,86 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import '../../core/services/api_service.dart';
-
-// class AuthProvider extends ChangeNotifier {
-//   bool? _isLoggedIn;
-//   bool? get isLoggedIn => _isLoggedIn;
-//   String? userId;
-//   String? userName;
-
-
-//   Future<void> loadSession() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final token = prefs.getString('token');
-//     _isLoggedIn = token != null;
-//     userId = prefs.getString('userId');
-//     ApiService.authToken = token;
-//     notifyListeners();
-//   }
-
-//   Future<void> login(String email, String password) async {
-//   final res = await ApiService.post('/auth/login', {
-//     'email': email,
-//     'password': password,
-//   });
-
-//   final token = res['token'];
-//   final userIdFromResponse = res['_id']; // ✅ FIXED
-
-//   if (token == null || userIdFromResponse == null) {
-//     throw Exception("Invalid login response");
-//   }
-
-//   final prefs = await SharedPreferences.getInstance();
-//   await prefs.setString('token', token);
-//   await prefs.setString('userId', userIdFromResponse);
-
-//   _isLoggedIn = true;
-//   userId = userIdFromResponse;
-//   ApiService.authToken = token;
-
-//   notifyListeners();
-// }
-
-//   Future<void> register(String name, String email, String password, String phone) async {
-//   final res = await ApiService.post('/auth/register', {
-//     'name': name,
-//     'email': email,
-//     'password': password,
-//     'phone': phone,
-//   });
-
-//   final token = res['token'];
-//   final userIdFromResponse = res['_id'];
-
-//   if (token == null || userIdFromResponse == null) {
-//     throw Exception("Invalid register response");
-//   }
-
-//   final prefs = await SharedPreferences.getInstance();
-//   await prefs.setString('token', token);
-//   await prefs.setString('userId', userIdFromResponse);
-
-//   _isLoggedIn = true;
-//   userId = userIdFromResponse;
-//   ApiService.authToken = token;
-
-//   notifyListeners();
-// }
-
-
-//   Future<void> logout() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.remove('token');
-//     await prefs.remove('userId');
-//     _isLoggedIn = false;
-//     userId = null;
-//     ApiService.authToken = null;
-//     notifyListeners();
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/services/api_service.dart';
@@ -91,18 +8,20 @@ class AuthProvider extends ChangeNotifier {
 
   String? userId;
   String? userName;
+  String? role;
+
+  bool get isAdmin => role == 'admin';
 
   /// LOAD SESSION (APP RESTART)
   Future<void> loadSession() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final token = prefs.getString('token');
-    _isLoggedIn = token != null;
-
+    ApiService.authToken = prefs.getString('token');
     userId = prefs.getString('userId');
-    userName = prefs.getString('userName'); // ✅ LOAD NAME
+    userName = prefs.getString('userName');
+    role = prefs.getString('role');
 
-    ApiService.authToken = token;
+    _isLoggedIn = ApiService.authToken != null;
     notifyListeners();
   }
 
@@ -115,26 +34,30 @@ class AuthProvider extends ChangeNotifier {
 
     final token = res['token'];
     final id = res['_id'];
-    final name = res['name']; // ✅ FROM BACKEND
+    final name = res['name'];
+    final userRole = res['role'] ?? 'user';
 
-    if (token == null || id == null || name == null) {
-      throw Exception("Invalid login response");
+    if (token == null || id == null) {
+      throw Exception("Invalid login response from server");
     }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
     await prefs.setString('userId', id);
-    await prefs.setString('userName', name); // ✅ SAVE NAME
+    await prefs.setString('userName', name ?? '');
+    await prefs.setString('role', userRole);
+
+    ApiService.authToken = token;
 
     _isLoggedIn = true;
     userId = id;
     userName = name;
+    role = userRole;
 
-    ApiService.authToken = token;
     notifyListeners();
   }
 
-  /// REGISTER
+  /// REGISTER (USER)
   Future<void> register(
     String name,
     String email,
@@ -151,21 +74,25 @@ class AuthProvider extends ChangeNotifier {
     final token = res['token'];
     final id = res['_id'];
     final userNameFromRes = res['name'];
+    final userRole = res['role'] ?? 'user';
 
-    if (token == null || id == null || userNameFromRes == null) {
-      throw Exception("Invalid register response");
+    if (token == null || id == null) {
+      throw Exception("Invalid register response from server");
     }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
     await prefs.setString('userId', id);
-    await prefs.setString('userName', userNameFromRes); // ✅ SAVE NAME
+    await prefs.setString('userName', userNameFromRes ?? '');
+    await prefs.setString('role', userRole);
+
+    ApiService.authToken = token;
 
     _isLoggedIn = true;
     userId = id;
     userName = userNameFromRes;
+    role = userRole;
 
-    ApiService.authToken = token;
     notifyListeners();
   }
 
@@ -177,6 +104,7 @@ class AuthProvider extends ChangeNotifier {
     _isLoggedIn = false;
     userId = null;
     userName = null;
+    role = null;
     ApiService.authToken = null;
 
     notifyListeners();

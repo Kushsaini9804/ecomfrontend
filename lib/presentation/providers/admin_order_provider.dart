@@ -13,8 +13,8 @@ class AdminOrderProvider with ChangeNotifier {
 
     try {
       final res = await http.get(
-        Uri.parse("http://10.127.96.237:5000/api/admin/orders/all-orders"),
-        // Uri.parse("https://ecommerce-backend-1-5jga.onrender.com/api/admin/orders/all-orders"),
+        // Uri.parse("http://10.127.96.237:5000/api/admin/orders/all-orders"),
+        Uri.parse("https://ecommerce-backend-1-5jga.onrender.com/api/admin/orders/all-orders"),
 
         headers: {"Authorization": "Bearer $token"},
       );
@@ -44,8 +44,8 @@ class AdminOrderProvider with ChangeNotifier {
       notifyListeners();
 
       final res = await http.put(
-        Uri.parse("http://10.127.96.237:5000/api/admin/orders/update-status"),
-        // Uri.parse("https://ecommerce-backend-1-5jga.onrender.com/api/admin/orders/update-status"),
+        // Uri.parse("http://10.127.96.237:5000/api/admin/orders/update-status"),
+        Uri.parse("https://ecommerce-backend-1-5jga.onrender.com/api/admin/orders/update-status"),
 
         headers: {
           "Content-Type": "application/json",

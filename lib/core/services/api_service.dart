@@ -4,11 +4,11 @@ import 'package:http/http.dart' as http;
 class ApiService {
   static const bool isProd = false;
 
-  // static const String baseUrl ="https://ecommerce-backend-1-5jga.onrender.com/api";
+  static const String baseUrl ="https://ecommerce-backend-1-5jga.onrender.com/api";
       
-     static const String baseUrl = isProd
-     ?"http://ecommerce-backend-1-5jga.onrender.com/api"
-     :"http://10.127.96.237:5000/api";
+    //  static const String baseUrl = isProd
+    //  ?"http://ecommerce-backend-1-5jga.onrender.com/api"
+    //  :"http://10.127.96.237:5000/api";
    
 
   static String? authToken;

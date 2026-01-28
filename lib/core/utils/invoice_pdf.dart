@@ -36,10 +36,10 @@ class InvoicePdf {
               /// ADDRESS
               pw.Text("Delivery Address",
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.Text(order.address.name),
-              pw.Text(order.address.street),
+              pw.Text(order.address.fullName),
+              pw.Text(order.address.addressLine),
               pw.Text(
-                  "${order.address.city}, ${order.address.state} - ${order.address.zip}"),
+                  "${order.address.city}, ${order.address.state} - ${order.address.pincode}"),
               pw.Text("Phone: ${order.address.phone}"),
 
               pw.SizedBox(height: 16),

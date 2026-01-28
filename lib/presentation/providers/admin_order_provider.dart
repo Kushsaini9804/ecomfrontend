@@ -1,17 +1,30 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../core/services/api_service.dart';
+import 'package:http/http.dart' as http;
 
-class AdminOrderProvider extends ChangeNotifier {
+class AdminOrderProvider with ChangeNotifier {
   List orders = [];
   bool loading = false;
 
-  Future<void> fetchAllOrders() async {
+  /// Fetch all pending/approved orders
+  Future<void> fetchAllOrders(String token) async {
     loading = true;
     notifyListeners();
 
     try {
-      final res = await ApiService.get('/admin/orders/all-orders');
-      orders = res['orders'] ?? [];
+      final res = await http.get(
+        Uri.parse("http://10.127.96.237:5000/api/admin/orders/all-orders"),
+        // Uri.parse("https://ecommerce-backend-1-5jga.onrender.com/api/admin/orders/all-orders"),
+
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body)['orders'] as List;
+        orders = data;
+      } else {
+        orders = [];
+      }
     } catch (e) {
       orders = [];
     }
@@ -20,11 +33,43 @@ class AdminOrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateStatus(String orderId, String status) async {
-    await ApiService.put('/admin/orders/update-status', {
-      "orderId": orderId,
-      "status": status,
-    });
-    fetchAllOrders();
+  /// Update order status and refresh orders
+  Future<void> updateOrderStatus({
+    required String orderId,
+    required String status,
+    required String token,
+  }) async {
+    try {
+      loading = true;
+      notifyListeners();
+
+      final res = await http.put(
+        Uri.parse("http://10.127.96.237:5000/api/admin/orders/update-status"),
+        // Uri.parse("https://ecommerce-backend-1-5jga.onrender.com/api/admin/orders/update-status"),
+
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({"orderId": orderId, "status": status}),
+      );
+
+      if (res.statusCode == 200) {
+        // refresh orders after update
+        await fetchAllOrders(token);
+      }
+    } catch (e) {
+      // handle error
+    }
+
+    loading = false;
+    notifyListeners();
+  }
+
+  /// Clear orders (logout)
+  void logout() {
+    orders = [];
+    loading = false;
+    notifyListeners();
   }
 }

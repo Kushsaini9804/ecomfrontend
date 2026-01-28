@@ -3,42 +3,41 @@ import '../../core/services/api_service.dart';
 import '../../data/models/order.dart';
 
 class OrderProvider extends ChangeNotifier {
-  List<Order> _orders = [];
-  bool _loading = false;
+  bool loading = false;
+  List<Order> orders = [];
 
-  List<Order> get orders => _orders;
-  bool get loading => _loading;
 
   Future<void> fetchOrders() async {
-    try {
-      _loading = true;
-      notifyListeners();
+  loading = true;
+  notifyListeners();
 
-      final response = await ApiService.get('/orders/get-order');
-      final List list = response['orders'] ?? [];
+  try {
+    final res = await ApiService.get('/orders/get-order');
 
-      _orders = list.map((e) => Order.fromJson(e)).toList();
-    } catch (e) {
-      debugPrint("Fetch orders error: $e");
-      _orders = [];
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
+    final List list = res['data'] ?? [];
+
+    orders = list.map((e) => Order.fromJson(e)).toList();
+  } catch (e) {
+    debugPrint("Fetch orders error: $e");
+    orders = [];
   }
 
+  loading = false;
+  notifyListeners();
+}
+
+
+
 Future<void> cancelOrder(String orderId) async {
-  await ApiService.patch('/orders/$orderId/cancel');
-  await fetchOrders();
-}
+    await ApiService.patch('/orders/$orderId/cancel');
+    await fetchOrders();
+  }
 
-Future<void> requestReturn(String orderId, String reason) async {
-  await ApiService.patch(
-    '/orders/$orderId/return',
-    body: { "reason": reason },
-  );
-  await fetchOrders();
-}
-
-
+  Future<void> requestReturn(String orderId, String reason) async {
+    await ApiService.patch(
+      '/orders/$orderId/return',
+      body: {"reason": reason},
+    );
+    await fetchOrders();
+  }
 }

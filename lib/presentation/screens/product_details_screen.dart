@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/presentation/providers/wishlist_provider.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/product.dart';
 import '../providers/cart_provider.dart';
@@ -23,8 +24,25 @@ class ProductDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(product.title),
-      ),
+        actions: [
+          Consumer<WishlistProvider>(
+            builder: (_, wish, __) {
+              return IconButton(
+                icon: Icon(
+                  wish.isWished(product.id)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: Colors.red,
+                ),
+                onPressed: () async {
+                  await wish.toggleWishlist(product);
+                },
+              );
+            },
+          ),
+        ],
 
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

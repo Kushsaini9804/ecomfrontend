@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/presentation/providers/cart_provider.dart';
+import 'package:mobile/presentation/providers/order_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/services/api_service.dart';
@@ -29,7 +30,7 @@ class _AddressScreenState extends State<AddressScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAddress();
+    // _loadAddress(); // Commented out to avoid 400 error if backend doesn't have GET /address
   }
 
   @override
@@ -94,6 +95,7 @@ class _AddressScreenState extends State<AddressScreen> {
     'landmark': _landmark.text.trim(),
   };
 
+
   try {
     // 1️⃣ Save address
     await ApiService.post('/address', address);
@@ -127,8 +129,6 @@ class _AddressScreenState extends State<AddressScreen> {
     if (mounted) setState(() => _loading = false);
   }
 }
-
-
 
   @override
   Widget build(BuildContext context) {

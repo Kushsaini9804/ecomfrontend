@@ -22,6 +22,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductProvider>().fetchProducts();
+      
     });
   }
 
@@ -44,6 +45,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
               return ChoiceChip(
                 label: Text(cat),
                 selected: selected,
+                backgroundColor: Colors.indigo,
+
                 onSelected: (_) {
                   provider.fetchProducts(category: cat);
                 },
@@ -94,7 +97,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       itemCount: 6,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.68,
+        childAspectRatio: 0.62,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
       ),

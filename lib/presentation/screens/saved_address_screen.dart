@@ -139,38 +139,42 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
   }
 
   Future<void> _saveAddress() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    final newAddress = {
-      'fullName': _fullNameController.text.trim(),
-      'phone': _phoneController.text.trim(),
-      'pincode': _pincodeController.text.trim(),
-      'city': _cityController.text.trim(),
-      'state': _stateController.text.trim(),
-      'addressLine': _addressLineController.text.trim(),
-      'landmark': _landmarkController.text.trim(),
-    };
+  final newAddress = {
+    'fullName': _fullNameController.text.trim(),
+    'phone': _phoneController.text.trim(),
+    'pincode': _pincodeController.text.trim(),
+    'city': _cityController.text.trim(),
+    'state': _stateController.text.trim(),
+    'addressLine': _addressLineController.text.trim(),
+    'landmark': _landmarkController.text.trim(),
+  };
 
-    try {
-      if (editingAddress == null) {
-        await ApiService.post('/address', newAddress);
-      } else {
-        await ApiService.put('/address/${editingAddress!['_id']}', newAddress);
-      }
-
-      Navigator.of(context).pop();
-      _fetchAddresses();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Address saved successfully!')),
-      );
-    } catch (e) {
-      debugPrint('Save address error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to save address')),
+  try {
+    if (editingAddress == null) {
+      await ApiService.post('/address', newAddress);
+    } else {
+      await ApiService.put(
+        '/address/${editingAddress!['_id']}',
+        body: newAddress,
       );
     }
+
+    Navigator.of(context).pop();
+    _fetchAddresses();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Address saved successfully!')),
+    );
+  } catch (e) {
+    debugPrint('Save address error: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to save address')),
+    );
   }
+}
+  
 
   Future<void> _deleteAddress(String addressId) async {
     try {
@@ -193,6 +197,7 @@ class _SavedAddressScreenState extends State<SavedAddressScreen> {
       appBar: AppBar(
         title: const Text("Saved Addresses"),
         backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
       ),
       body: addresses.isEmpty
           ? const Center(child: Text('No saved addresses yet'))

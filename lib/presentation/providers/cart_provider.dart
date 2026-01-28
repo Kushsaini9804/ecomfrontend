@@ -79,14 +79,17 @@ class CartProvider extends ChangeNotifier {
       final itemsToOrder = items ?? _items;
       final data = {
         'payment_type': paymentMethod.toUpperCase(),
-        'address': {
-          "name": address['fullName'],
-          "phone": address['phone'],
-          "street": address['addressLine'],
-          "city": address['city'],
-          "state": address['state'],
-          "zip": address['pincode'],
-        },
+
+            'address': {
+            "fullName": address['fullName'],
+            "phone": address['phone'],
+            "pincode": address['pincode'],
+            "city": address['city'],
+            "state": address['state'],
+            "addressLine": address['addressLine'],
+            "landmark": address['landmark'],
+          },
+
         'items': itemsToOrder.map((item) => {'product_id': item.product.id, 'qty': item.qty}).toList()
       };
 
@@ -103,33 +106,23 @@ class CartProvider extends ChangeNotifier {
       rethrow;
     }
   }
-
-  Future<dynamic> buyNow(
+  Future<void> buyNow(
   Product product,
   Map<String, dynamic> address,
   String paymentMethod,
-) async {
-  try {
-    final response = await ApiService.post('/orders/buy-now', {
-      'productId': product.id,
-      'qty': 1,
+    ) async {
+    final data = {
       'payment_type': paymentMethod.toUpperCase(),
-      'address': {
-        "name": address['fullName'],
-        "phone": address['phone'],
-        "street": address['addressLine'],
-        "city": address['city'],
-        "state": address['state'],
-        "zip": address['pincode'],
-      },
-    });
+      'address': address,
+      'items': [{'product_id': product.id, 'qty': 1}]
+    };
 
-    return response;
-  } catch (e) {
-    debugPrint("Buy now error: $e");
-    rethrow;
+    final response = await ApiService.post('/orders/buy-now', data);
+
+    if (response == null) {
+      throw Exception('Buy now failed');
+    }
   }
-}
 
   //new changes
   Future<void> increaseQuantity(String productId) async {
@@ -145,7 +138,7 @@ class CartProvider extends ChangeNotifier {
     
   }
 
-Future<void> reduceQuantity(String productId) async {
+  Future<void> reduceQuantity(String productId) async {
   try {
       await ApiService.post('/cart/reduce-item', {
         'productId': productId,

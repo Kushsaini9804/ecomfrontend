@@ -1,4 +1,4 @@
-class Order {
+class Order { 
   final String orderId;
   final double total;
   final String status;
@@ -6,6 +6,7 @@ class Order {
   final DateTime createdAt;
   final Address address;
   final List<OrderItem> items;
+  final String? image; // Optional: representative image URL
 
   Order({
     required this.orderId,
@@ -15,53 +16,37 @@ class Order {
     required this.createdAt,
     required this.address,
     required this.items,
+    required this.image,
   });
 
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-      orderId: json['orderId'],
-      total: (json['total'] ?? 0).toDouble(),
-      status: json['status'],
-      paymentType: json['payment_type'],
-      createdAt: DateTime.parse(json['createdAt']),
-      address: Address.fromJson(json['address']),
-      items: (json['items'] as List)
-          .map((e) => OrderItem.fromJson(e))
-          .toList(),
-    );
-  }
+factory Order.fromJson(Map<String, dynamic> json) {
+  return Order(
+    orderId: json['_id'] ?? json['orderId'] ?? '',
+    total: (json['total'] ?? 0).toDouble(),
+    status: json['status'] ?? 'Pending',
+    paymentType: json['payment_type'] ?? json['paymentType'] ?? 'COD',
+    createdAt: json['createdAt'] != null
+        ? DateTime.parse(json['createdAt'])
+        : DateTime.now(),
+
+    address: json['address'] != null
+        ? Address.fromJson(json['address'])
+        : Address(
+            fullName: '',
+            phone: '',
+            pincode: '',
+            city: '',
+            state: '',
+            addressLine: '',
+          ),
+
+    items: (json['items'] as List? ?? [])
+        .map((e) => OrderItem.fromJson(e))
+        .toList(),
+
+    image: json['image'],
+  );
 }
-
-/* =====================
-   ADDRESS MODEL
-===================== */
-class Address {
-  final String name;
-  final String phone;
-  final String street;
-  final String city;
-  final String state;
-  final String zip;
-
-  Address({
-    required this.name,
-    required this.phone,
-    required this.street,
-    required this.city,
-    required this.state,
-    required this.zip,
-  });
-
-  factory Address.fromJson(Map<String, dynamic> json) {
-    return Address(
-      name: json['name'] ?? '',
-      phone: json['phone'] ?? '',
-      street: json['street'] ?? '',
-      city: json['city'] ?? '',
-      state: json['state'] ?? '',
-      zip: json['zip'] ?? '',
-    );
-  }
 }
 
 /* =====================
@@ -82,10 +67,42 @@ class OrderItem {
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
-      title: json['title'],
-      qty: json['qty'],
+      title: json['title'] ?? '',
+      qty: json['qty'] ?? 1,
       price: (json['price'] ?? 0).toDouble(),
       image: json['image'],
     );
   }
 }
+  class Address {
+    final String fullName;
+    final String phone;
+    final String pincode;
+    final String city;
+    final String state;
+    final String addressLine;
+    final String? landmark;
+
+    Address({
+      required this.fullName,
+      required this.phone,
+      required this.pincode,
+      required this.city,
+      required this.state,
+      required this.addressLine,
+      this.landmark,
+    });
+
+    factory Address.fromJson(Map<String, dynamic> json) {
+      return Address(
+        fullName: json['fullName'] ?? '',
+        phone: json['phone'] ?? '',
+        pincode: json['pincode'] ?? '',
+        city: json['city'] ?? '',
+        state: json['state'] ?? '',
+        addressLine: json['addressLine'] ?? '',
+        landmark: json['landmark'],
+      );
+    }
+  }
+

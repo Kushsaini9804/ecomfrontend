@@ -32,14 +32,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final provider = context.watch<OrderProvider>();
 
     if (provider.loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+
+
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (provider.orders.isEmpty) {
-      return const Scaffold(
-        body: Center(
+      return Scaffold(
+                    appBar: AppBar(title: const Text("My Orders"),
+            backgroundColor: Colors.indigo,
+            foregroundColor: Colors.white,
+            ),
+        body: const Center(
+          
           child: Text(
             "No orders yet",
             style: TextStyle(fontSize: 16),

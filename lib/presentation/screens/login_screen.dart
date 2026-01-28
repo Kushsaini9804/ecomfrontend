@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/presentation/providers/cart_provider.dart';
+import 'package:mobile/presentation/providers/wishlist_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'signup_screen.dart';
@@ -31,42 +33,44 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-      Future<void> _login() async {
-      if (!_formKey.currentState!.validate()) {
-        _shakeController.forward().then((_) => _shakeController.reset());
-        return;
-      }
-
-      setState(() => _isLoading = true);
-
-      try {
-        final auth = context.read<AuthProvider>();
-
-        await auth.login(_email.text.trim(), _password.text.trim());
-
-        if (!mounted) return;
-
-        // 🔥 ROLE BASED REDIRECT
-        if (auth.isAdmin) {
-          Navigator.pushReplacementNamed(context, '/admin');
-        } else {
-          Navigator.pushReplacementNamed(context, '/home');
-        }
-      } catch (e) {
-        _shakeController.forward().then((_) => _shakeController.reset());
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString().replaceAll('Exception:', '').trim(),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } finally {
-        setState(() => _isLoading = false);
-      }
+    Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
+      _shakeController.forward().then((_) => _shakeController.reset());
+      return;
     }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final auth = context.read<AuthProvider>();
+
+      await auth.login(_email.text.trim(), _password.text.trim());
+
+      if (!mounted) return;
+      await context.read<WishlistProvider>().fetchWishlist();
+      // await context.read<CartProvider>().fetchCart();
+
+      //  ROLE BASED REDIRECT
+      if (auth.isAdmin) {
+        Navigator.pushReplacementNamed(context, '/admin');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      _shakeController.forward().then((_) => _shakeController.reset());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceAll('Exception:', '').trim(),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
 
   @override

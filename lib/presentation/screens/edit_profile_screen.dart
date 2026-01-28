@@ -32,7 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _saveProfile() async {
+Future<void> _saveProfile() async {
   if (!_formKey.currentState!.validate()) return;
 
   final updatedData = {
@@ -42,13 +42,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   };
 
   try {
-    final response = await ApiService.put('/users/update-profile', updatedData);
+    final response = await ApiService.put(
+      '/users/update-profile',
+      body: updatedData,
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(response['message'])),
+      SnackBar(content: Text(response['message'] ?? 'Profile updated')),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Failed to update profile")),
+      const SnackBar(content: Text("Failed to update profile")),
     );
   }
 }
@@ -60,7 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         title: const Text("Edit Profile"),
         backgroundColor: Colors.indigo,
-        foregroundColor: Color.fromARGB(255, 219, 216, 216),
+        foregroundColor: Color.fromARGB(255, 253, 253, 253),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

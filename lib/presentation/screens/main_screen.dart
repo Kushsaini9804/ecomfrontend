@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/presentation/screens/category_screen.dart';
 import 'package:mobile/presentation/screens/product_search_delegate.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+
 import 'product_list_screen.dart';
 import 'cart_screen.dart';
+import 'category_screen.dart';
 import 'my_orders_screen.dart';
 import 'account_screen.dart';
+
+import '../widgets/glass_bottom_navbar.dart'; // 👈 IMPORTANT
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -29,7 +33,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CartProvider>().fetchCart();
     });
@@ -41,16 +44,18 @@ class _MainScreenState extends State<MainScreen> {
     final authProvider = context.watch<AuthProvider>();
     final userId = authProvider.userId ?? '';
 
-    /// ✅ PAGES (ORDER MUST MATCH NAV ITEMS)
-    final List<Widget> _pages = [
+    /// ✅ SCREENS (ORDER MUST MATCH NAV INDEX)
+    final pages = [
       const ProductListScreen(), // 0 Home
       CartScreen(userId: userId), // 1 Cart
-      const CategoryScreen(), // 2 Categories
-      const MyOrdersScreen(), // 3 Orders
-      const AccountScreen(), // 4 Account
+      const CategoryScreen(),    // 2 Categories
+      const MyOrdersScreen(),    // 3 Orders
+      const AccountScreen(),     // 4 Account
     ];
 
     return Scaffold(
+      extendBody: true, // 🔥 REQUIRED FOR GLASS EFFECT
+
       appBar: AppBar(
         title: const Text(
           "Shop Live",
@@ -59,7 +64,7 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         actions: [
-          /// 🔍 SEARCH
+
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -70,45 +75,8 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
 
-          /// 🚪 LOGOUT
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Confirm Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('No'),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 57, 54, 244),
-                      ),
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Yes'),
-                    ),
-                  ],
-                ),
-              );
 
-              if (confirm == true) {
-                await context.read<AuthProvider>().logout();
-                if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/',
-                    (_) => false,
-                  );
-                }
-              }
-            },
-          ),
-
-          /// 🌙 THEME TOGGLE
+          /// THEME TOGGLE
           IconButton(
             icon: Icon(
               themeProvider.isDark
@@ -120,66 +88,16 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
 
-      body: _pages[_selectedIndex],
+      /// ✅ BODY SWITCHES PROPERLY
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: pages,
+      ),
 
-      /// ✅ UPDATED BOTTOM NAVIGATION
-      bottomNavigationBar: BottomNavigationBar(
+      /// ✅ LIQUID GLASS NAVBAR
+      bottomNavigationBar: GlassBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-
-          BottomNavigationBarItem(
-            icon: Consumer<CartProvider>(
-              builder: (_, cart, __) {
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(Icons.shopping_cart),
-                    if (cart.items.isNotEmpty)
-                      Positioned(
-                        right: -6,
-                        top: -3,
-                        child: CircleAvatar(
-                          radius: 9,
-                          backgroundColor: Colors.red,
-                          child: Text(
-                            cart.items.length.toString(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-            label: "Cart",
-          ),
-
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: "Categories",
-          ),
-
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
-            label: "Orders",
-          ),
-
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Account",
-          ),
-        ],
       ),
     );
   }

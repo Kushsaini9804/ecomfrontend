@@ -29,14 +29,12 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['_id'] ?? '',
+      // id: json['_id'] ?? '',
+      id: json['_id']?.toString() ?? '', // 🔥 THIS WAS THE BUG
       title: json['title'] ?? '',
       price: (json['price'] ?? 0).toDouble(),
       discount: (json['discount'] ?? 0).toDouble(),
       image: json['image'] ?? '',
-      // images: (json['images'] as List<dynamic>?)
-      //     ?.map((e) => e.toString())
-      //     .toList(),
       colors: (json['colors'] as List<dynamic>?)
           ?.map((e) => e.toString())
           .toList(),
@@ -46,6 +44,15 @@ class Product {
       description: json['description'] ?? '',
       rating: (json['rating'] ?? 4.5).toDouble(),
       category: json['category'] ?? 'All',
+
+      
     );
   }
+   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Product && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

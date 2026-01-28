@@ -32,7 +32,10 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("All Orders")),
+      appBar: AppBar(title: const Text("All Orders"),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,),
+
       body: ListView.builder(
         itemCount: orders.length,
         itemBuilder: (_, i) {

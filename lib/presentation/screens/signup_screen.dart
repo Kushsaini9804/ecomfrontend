@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mobile/presentation/providers/wishlist_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
@@ -7,6 +9,7 @@ import '../../core/utils/helpers.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+
   @override
   State<SignupScreen> createState() => _SignupScreenState();
 }
@@ -40,6 +43,10 @@ class _SignupScreenState extends State<SignupScreen>
   @override
   void dispose() {
     _shakeController.dispose();
+    _name.dispose();
+    _email.dispose();
+    _password.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -52,20 +59,32 @@ class _SignupScreenState extends State<SignupScreen>
     setState(() => _isLoading = true);
 
     try {
-      await context
-          .read<AuthProvider>()
-          .register(_name.text, _email.text, _password.text, _phone.text);
+      await context.read<AuthProvider>().register(
+            _name.text.trim(),
+            _email.text.trim(),
+            _password.text,
+            _phone.text.trim(),
+          );
 
-      // Clear cart for new user
       context.read<CartProvider>().clearCart();
+
 
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       _shakeController.forward().then((_) => _shakeController.reset());
+
+      String message = "Signup failed";
+      if (e.toString().toLowerCase().contains('exist')) {
+        message = "User already exists with this email";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -93,7 +112,7 @@ class _SignupScreenState extends State<SignupScreen>
             padding: const EdgeInsets.all(24),
             child: AnimatedBuilder(
               animation: _shakeAnim,
-              builder: (ctx, child) => Transform.translate(
+              builder: (_, child) => Transform.translate(
                 offset: Offset(_shakeAnim.value, 0),
                 child: child,
               ),
@@ -101,7 +120,8 @@ class _SignupScreenState extends State<SignupScreen>
                 elevation: 20,
                 color: isDark ? Colors.grey[850] : Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24)),
+                  borderRadius: BorderRadius.circular(24),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(28),
                   child: Form(
@@ -122,40 +142,54 @@ class _SignupScreenState extends State<SignupScreen>
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 20),
-//                      TextFormField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: 'Email', prefixIcon: const Icon(Icons.email_outlined), filled: true, fillColor: isDark ? Colors.grey[800] : Colors.grey[100], border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)), validator: (v) {
 
-                        // NAME
+                        /// NAME
                         TextFormField(
                           controller: _name,
-                          decoration: InputDecoration(labelText: "Full Name", prefixIcon: const Icon(Icons.person), filled: true, fillColor: isDark ? Colors.grey[800] : Colors.grey[100],border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                          decoration: _input(
+                            "Full Name",
+                            Icons.person,
+                            isDark,
+                          ),
                           validator: (v) =>
                               v!.isEmpty ? "Enter your name" : null,
-                    
                         ),
                         const SizedBox(height: 16),
 
-                        // EMAIL
+                        /// EMAIL
                         TextFormField(
                           controller: _email,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(labelText: "Email", prefixIcon: const Icon(Icons.email_outlined), filled: true, fillColor: isDark ? Colors.grey[800] : Colors.grey[100],border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                          decoration: _input(
+                            "Email",
+                            Icons.email_outlined,
+                            isDark,
+                          ),
                           validator: (v) {
                             if (v!.isEmpty) return "Enter your email";
-                            if (!Helpers.isValidEmail(v)) return "Enter a valid email";
+                            if (!Helpers.isValidEmail(v)) {
+                              return "Enter a valid email";
+                            }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
 
-                        // PASSWORD
+                        /// PASSWORD
                         TextFormField(
                           controller: _password,
                           obscureText: _obscure,
-                          decoration: InputDecoration(labelText: "Password", prefixIcon: const Icon(Icons.lock), filled: true, fillColor: isDark ? Colors.grey[800] : Colors.grey[100], border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)).copyWith(
+                          decoration: _input(
+                            "Password",
+                            Icons.lock,
+                            isDark,
+                          ).copyWith(
                             suffixIcon: IconButton(
-                              icon: Icon(_obscure
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey),
                               onPressed: () =>
                                   setState(() => _obscure = !_obscure),
                             ),
@@ -163,18 +197,34 @@ class _SignupScreenState extends State<SignupScreen>
                           validator: (v) =>
                               v!.length < 6 ? "Min 6 characters" : null,
                         ),
-
-                        const SizedBox(height: 26),
-
-                        TextFormField(
-                          controller: _phone,
-                          decoration: InputDecoration(labelText: "Phone Number", prefixIcon: const Icon(Icons.phone), filled: true, fillColor: isDark ? Colors.grey[800] : Colors.grey[100],border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
-                          validator: (v) =>
-                              v!.isEmpty ? "Enter your phone number" : null,
-                        ),
                         const SizedBox(height: 16),
 
-                        // SIGNUP BUTTON
+                        /// PHONE NUMBER ✅ FIXED
+                        TextFormField(
+                          controller: _phone,
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: _input(
+                            "Phone Number",
+                            Icons.phone,
+                            isDark,
+                          ).copyWith(counterText: ""),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) {
+                              return "Enter your phone number";
+                            }
+                            if (!RegExp(r'^[0-9]{10}$').hasMatch(v)) {
+                              return "Phone number must be 10 digits";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 26),
+
+                        /// SIGNUP BUTTON
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -193,14 +243,13 @@ class _SignupScreenState extends State<SignupScreen>
                                     "Create Account",
                                     style: TextStyle(
                                         fontSize: 18,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                           ),
                         ),
 
                         const SizedBox(height: 18),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -214,9 +263,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     fontWeight: FontWeight.bold,
                                     color: Colors.purple),
                               ),
-                            )
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -229,13 +278,16 @@ class _SignupScreenState extends State<SignupScreen>
     );
   }
 
-  InputDecoration _input(String label, IconData icon) => InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: Colors.grey[200],
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none),
-      );
+  InputDecoration _input(String label, IconData icon, bool isDark) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
 }

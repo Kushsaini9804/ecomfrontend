@@ -21,50 +21,82 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final cart = context.watch<CartProvider>();
+@override
+Widget build(BuildContext context) {
+  final cart = context.watch<CartProvider>();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text("My Cart")),
-      body: cart.items.isEmpty
-          ? const Center(child: Text("Cart is empty"))
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cart.items.length,
-                    itemBuilder: (_, i) {
-                      final item = cart.items[i];
-                      // Assuming item has product and qty
-                      return CartItemTile(
-                        product: item.product,
-                        qty: item.qty,
-                      );
-                    },
-                  ),
+  /// 🔹 Height of glass navbar + safe spacing
+  const double bottomNavHeight = 90;
+
+  return Scaffold(
+    appBar: AppBar(title: const Text("My Cart"),
+    backgroundColor: Colors.indigo,
+    foregroundColor: Colors.white,
+    ),
+
+    body: cart.items.isEmpty
+        ? const Center(child: Text("Cart is empty"))
+        : Column(
+            children: [
+              /// 🛒 CART ITEMS
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: bottomNavHeight),
+                  itemCount: cart.items.length,
+                  itemBuilder: (_, i) {
+                    final item = cart.items[i];
+                    return CartItemTile(
+                      product: item.product,
+                      qty: item.qty,
+                    );
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
+              ),
+
+              /// 💰 TOTAL + CHECKOUT (FIXED ABOVE NAVBAR)
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
                   child: Row(
                     children: [
                       Expanded(
                         child: Text(
                           "Total: ₹ ${cart.total.toStringAsFixed(2)}",
-                          style: const TextStyle(fontSize: 18),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 14,
+                          ),
+                        ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/checkout');
                         },
                         child: const Text("Checkout"),
-                      )
+                      ),
                     ],
                   ),
-                )
-              ],
-            ),
-    );
-  }
+                ),
+              ),
+            ],
+          ),
+  );
+}
 }

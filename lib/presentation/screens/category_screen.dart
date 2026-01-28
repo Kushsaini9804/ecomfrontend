@@ -44,7 +44,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
               return ChoiceChip(
                 label: Text(cat),
                 selected: selected,
-                selectedColor: Colors.black,
+                backgroundColor: Colors.indigo,
+              
+                selectedColor: const Color.fromARGB(255, 0, 0, 0),
                 labelStyle: TextStyle(
                   color: selected ? Colors.white : Colors.black,
                 ),

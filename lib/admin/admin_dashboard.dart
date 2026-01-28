@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/presentation/providers/admin_order_provider.dart';
+import 'package:mobile/presentation/providers/auth_provider.dart';
 import 'package:mobile/presentation/screens/admin_orders_screen.dart';
-import '';
+import 'package:provider/provider.dart';
 import 'admin_products_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
@@ -8,8 +10,54 @@ class AdminDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AdminOrderProvider>();
+    final auth = context.read<AuthProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text("Admin Panel")),
+      appBar: AppBar(title: const Text("Admin Panel"),
+          backgroundColor: Colors.indigo,
+          foregroundColor: Colors.white,
+          actions: [
+          IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(); // ❌ Cancel
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      onPressed: () async {
+                        Navigator.of(dialogContext).pop(); // close dialog
+
+                        await auth.logout(context);
+                        provider.logout();
+
+                        Navigator.of(context)
+                            .pushReplacementNamed('/login');
+                      },
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+
+
+        ],
+      ),
       body: GridView.count(
         padding: const EdgeInsets.all(16),
         crossAxisCount: 2,

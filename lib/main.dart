@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/admin/admin_dashboard.dart';
+import 'package:mobile/admin/admin_orders_screen.dart';
 import 'package:mobile/data/models/product.dart';
 import 'package:mobile/presentation/providers/admin_order_provider.dart';
 import 'package:mobile/presentation/providers/product_provider.dart';
+import 'package:mobile/presentation/providers/wishlist_provider.dart';
 import 'package:mobile/presentation/screens/main_screen.dart';
+import 'package:mobile/presentation/screens/wishlist_screen.dart';
 import 'package:provider/provider.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/order_provider.dart';
@@ -11,7 +14,6 @@ import 'presentation/providers/cart_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/signup_screen.dart';
-import 'presentation/screens/product_list_screen.dart';
 import 'presentation/screens/cart_screen.dart';
 import 'presentation/screens/order_success_screen.dart';
 import 'presentation/screens/checkout_screen.dart';
@@ -35,6 +37,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()..fetchProducts()),
         ChangeNotifierProvider(create: (_) => AdminOrderProvider()),
+        ChangeNotifierProvider(create: (_) => WishlistProvider()),
 
       ],
       child: const MaterialAppWithTheme(),
@@ -65,6 +68,8 @@ class MaterialAppWithTheme extends StatelessWidget {
           return const MainScreen();
         },
         '/admin': (_) => const AdminDashboard(),
+        '/wishlist': (_) => WishlistScreen(),
+        '/admin-orders': (_) => const AdminOrdersScreen(),
 
 
         '/cart': (_) {

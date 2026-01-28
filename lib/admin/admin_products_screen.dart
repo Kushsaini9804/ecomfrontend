@@ -30,7 +30,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Manage Products")),
+      appBar: AppBar(title: const Text("Manage Products"),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,),
       body: ListView.builder(
         itemCount: products.length,
         itemBuilder: (_, i) {
